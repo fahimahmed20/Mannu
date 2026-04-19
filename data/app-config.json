@@ -1,0 +1,9 @@
+{
+  "appName": "Manu Explorers Field Guide",
+  "appDescription": "Wildlife field guide for Manu National Park, Peru. Identify birds, frogs, and more — works offline.",
+  "allowRegistration": true,
+  "maintenanceMode": false,
+  "otpExpiryMinutes": 10,
+  "maxLoginAttempts": 5,
+  "sessionHours": 8
+}

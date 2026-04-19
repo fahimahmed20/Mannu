@@ -1,0 +1,20 @@
+[
+  {
+    "id": "bird",
+    "label": "Birds",
+    "emoji": "🦜",
+    "paletteId": "emerald"
+  },
+  {
+    "id": "frog",
+    "label": "Frogs",
+    "emoji": "🐸",
+    "paletteId": "lime"
+  },
+  {
+    "id": "cow",
+    "label": "Cow",
+    "emoji": "🐾",
+    "paletteId": "indigo"
+  }
+]

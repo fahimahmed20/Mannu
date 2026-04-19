@@ -1,0 +1,152 @@
+[
+  {
+    "id": "scarlet-macaw",
+    "name": "Scarlet Macaw",
+    "scientific_name": "Ara macao",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/scarlet-macaw/600/400",
+    "description": "One of the most iconic birds of Manu, the Scarlet Macaw dazzles with its vivid red, yellow, and blue plumage. Often seen in noisy flocks flying over the canopy or gathering at clay licks (collpas) to ingest minerals. Their loud screeching calls echo through the forest at dawn.",
+    "habitat": "River banks, clay licks (collpas), forest canopy",
+    "difficulty": "common"
+  },
+  {
+    "id": "harpy-eagle",
+    "name": "Harpy Eagle",
+    "scientific_name": "Harpia harpyja",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/harpy-eagle/600/400",
+    "description": "The most powerful raptor in the Americas. With a wingspan up to 2m and talons the size of a grizzly bear's claws, it preys on sloths and monkeys. Rarely seen but unmistakable — look for the distinctive crest of feathers framing its face.",
+    "habitat": "Undisturbed primary rainforest, high canopy",
+    "difficulty": "rare"
+  },
+  {
+    "id": "cock-of-the-rock",
+    "name": "Andean Cock-of-the-rock",
+    "scientific_name": "Rupicola peruvianus",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/cock-of-the-rock/600/400",
+    "description": "Peru's national bird. Males sport a brilliant flame-orange plumage and a fan-shaped crest. At dawn, males gather at traditional lek sites to display for females with flapping wings and loud squawks. One of Manu's most sought-after sightings.",
+    "habitat": "Rocky outcrops near streams in cloud forest",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "blue-yellow-macaw",
+    "name": "Blue-and-yellow Macaw",
+    "scientific_name": "Ara ararauna",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/blue-yellow-macaw/600/400",
+    "description": "A striking large parrot with brilliant turquoise-blue upperparts and golden-yellow underparts. Frequently observed in pairs or flocks visiting clay licks alongside Scarlet Macaws. Their intelligence and pair bonds (mated for life) are remarkable.",
+    "habitat": "Clay licks, forest edge, palm swamps",
+    "difficulty": "common"
+  },
+  {
+    "id": "hoatzin",
+    "name": "Hoatzin",
+    "scientific_name": "Opisthocomus hoazin",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/hoatzin-bird/600/400",
+    "description": "A bizarre prehistoric-looking bird known as the 'stinkbird' due to its fermentation-based digestion. Chicks have clawed wings reminiscent of Archaeopteryx. Often found clambering awkwardly in riverside vegetation in noisy groups.",
+    "habitat": "Riverine vegetation, oxbow lake shores",
+    "difficulty": "common"
+  },
+  {
+    "id": "sunbittern",
+    "name": "Sunbittern",
+    "scientific_name": "Eurypyga helias",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/sunbittern/600/400",
+    "description": "A cryptic and elegant wader that reveals spectacular sun-like wing patterns when threatened. Stalks slowly along forest streams hunting fish and insects. Spreads wings dramatically to startle predators, revealing vivid orange and black eyespots.",
+    "habitat": "Clear forest streams and rivers",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "paradise-tanager",
+    "name": "Paradise Tanager",
+    "scientific_name": "Tangara chilensis",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/paradise-tanager/600/400",
+    "description": "A kaleidoscopic small bird with turquoise head, scarlet back, purple throat, and yellow-green rump. One of the most colorful birds in the world. Often found in mixed-species flocks moving through the mid-canopy in search of fruit.",
+    "habitat": "Forest canopy and edges, often near fruit trees",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "giant-antpitta",
+    "name": "Giant Antpitta",
+    "scientific_name": "Grallaria gigantea",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/giant-antpitta/600/400",
+    "description": "A shy, largely terrestrial bird that hops through the forest floor on its long legs. Notoriously difficult to see despite its size. In some sites, individuals have been habituated to accept earthworm offerings — making for extraordinary close encounters.",
+    "habitat": "Dense undergrowth of highland forest",
+    "difficulty": "rare"
+  },
+  {
+    "id": "umbrellabird",
+    "name": "Amazonian Umbrellabird",
+    "scientific_name": "Cephalopterus ornatus",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/umbrellabird/600/400",
+    "description": "The largest cotinga in the Amazon, named for the umbrella-like crest of forward-curving feathers on the male's head. Also features a long inflatable wattle on the chest used during booming calls at leks. A truly bizarre and impressive bird.",
+    "habitat": "Tall primary rainforest, often near rivers",
+    "difficulty": "rare"
+  },
+  {
+    "id": "black-collared-hawk",
+    "name": "Black-collared Hawk",
+    "scientific_name": "Busarellus nigricollis",
+    "category": "bird",
+    "image": "https://picsum.photos/seed/black-collared-hawk/600/400",
+    "description": "A striking rufous-and-white hawk with a distinctive black chest crescent. Specializes in fishing, plunging feet-first into shallow water. Frequently perches in the open on snags or dead trees beside oxbow lakes and rivers, making it easy to observe.",
+    "habitat": "Oxbow lakes, river margins, wetlands",
+    "difficulty": "common"
+  },
+  {
+    "id": "amazon-milk-frog",
+    "name": "Amazon Milk Frog",
+    "scientific_name": "Trachycephalus resinifictrix",
+    "category": "frog",
+    "image": "https://picsum.photos/seed/amazon-milk-frog/600/400",
+    "description": "A large and charismatic tree frog named for the sticky white secretion it produces when threatened. Adults are gray with dark brown banding; juveniles are more boldly patterned. Found high in the canopy, breeding in water-filled tree holes.",
+    "habitat": "High rainforest canopy, tree holes near rivers",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "mimic-poison-dart",
+    "name": "Mimic Poison Dart Frog",
+    "scientific_name": "Ranitomeya imitator",
+    "category": "frog",
+    "image": "https://picsum.photos/seed/mimic-poison-dart/600/400",
+    "description": "A remarkable species that mimics the coloration of other toxic frogs — populations in different areas look completely different to match local models. Tiny (less than 2cm) but brilliantly patterned. Fathers carry tadpoles on their backs to water sources.",
+    "habitat": "Leaf litter and bromeliads on forest floor",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "waxy-monkey-frog",
+    "name": "Giant Waxy Monkey Frog",
+    "scientific_name": "Phyllomedusa bicolor",
+    "category": "frog",
+    "image": "https://picsum.photos/seed/waxy-monkey-frog/600/400",
+    "description": "One of the largest tree frogs in the Amazon, reaching 11cm. Produces a potent waxy skin secretion (kambo) with bioactive peptides. Moves with a slow monkey-like walk rather than jumping. Bright green above, white below with bold black-and-white spotted flanks.",
+    "habitat": "Forest canopy and mid-story near water",
+    "difficulty": "uncommon"
+  },
+  {
+    "id": "brilliant-thighed-frog",
+    "name": "Brilliant-thighed Poison Frog",
+    "scientific_name": "Allobates femoralis",
+    "category": "frog",
+    "image": "https://picsum.photos/seed/brilliant-thighed/600/400",
+    "description": "A small, diurnal frog with an orange flash on its thighs revealed during movement. Males are highly territorial and vocal, producing a rapid series of clicks. Despite its bold colors it is only mildly toxic. Common on the forest floor of primary rainforest.",
+    "habitat": "Leaf litter of undisturbed primary forest floor",
+    "difficulty": "common"
+  },
+  {
+    "id": "peru-harlequin-frog",
+    "name": "Manu Harlequin Frog",
+    "scientific_name": "Atelopus sp. (Manu)",
+    "category": "frog",
+    "image": "https://picsum.photos/seed/harlequin-frog/600/400",
+    "description": "A critically endangered and spectacularly patterned toad-like frog found near fast-flowing mountain streams. Heavily impacted by chytrid fungus across the Andes. Sightings in Manu are increasingly rare and considered exceptional by herpetologists worldwide.",
+    "habitat": "Rocky fast-flowing streams in cloud forest",
+    "difficulty": "rare"
+  }
+]

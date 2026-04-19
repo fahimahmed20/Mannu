@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <rect width="600" height="400" fill="#f5f5f4"/>
+  <rect x="220" y="130" width="160" height="120" rx="16" fill="#e7e5e4"/>
+  <circle cx="270" cy="170" r="20" fill="#d6d3d1"/>
+  <polygon points="230,250 300,175 370,250" fill="#d6d3d1"/>
+  <polygon points="290,250 340,200 390,250" fill="#c4c0bb"/>
+  <text x="300" y="295" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#a8a29e">Image unavailable offline</text>
+</svg>

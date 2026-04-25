@@ -33,6 +33,16 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Runtime data — generated on server, never overwrite with git pull
+data/media.json
+data/activity-log.json
+data/app-users.json
+data/smtp-config.json
+
+# Keep uploaded files on server
+public/uploads/*
+!public/uploads/.gitkeep
+
 # vercel
 .vercel
 

@@ -1,0 +1,49 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (verify it compiles)
+        run: npm run build
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            set -e
+            cd ~/manu-explorers
+            git pull origin main
+            npm ci --prefer-offline
+            npm run build
+            # Init runtime data files if missing
+            [ -f data/media.json ]       || echo "[]" > data/media.json
+            [ -f data/activity-log.json ] || echo "[]" > data/activity-log.json
+            [ -f data/app-users.json ]    || echo "[]" > data/app-users.json
+            mkdir -p public/uploads
+            mkdir -p tmp
+            touch tmp/restart.txt
+            echo "✅ Deployment complete"

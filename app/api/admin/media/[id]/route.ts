@@ -21,7 +21,9 @@ export async function DELETE(
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const media = JSON.parse(fs.readFileSync(mediaPath, "utf-8"));
+  const media = fs.existsSync(mediaPath)
+    ? JSON.parse(fs.readFileSync(mediaPath, "utf-8"))
+    : [];
   const entry = media.find((m: { id: string }) => m.id === id);
   if (!entry) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

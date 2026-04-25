@@ -1,0 +1,14 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/blushaur/manu-explorers
+    - /bin/cp -R * $DEPLOYPATH
+    - cd $DEPLOYPATH
+    - npm ci
+    - npm run build
+    - /bin/bash -c "[ -f data/media.json ] || echo '[]' > data/media.json"
+    - /bin/bash -c "[ -f data/activity-log.json ] || echo '[]' > data/activity-log.json"
+    - /bin/bash -c "[ -f data/app-users.json ] || echo '[]' > data/app-users.json"
+    - mkdir -p public/uploads
+    - mkdir -p tmp
+    - touch tmp/restart.txt

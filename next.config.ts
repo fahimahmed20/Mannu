@@ -26,9 +26,6 @@ export default withPWA({
     disableDevLogs: true,
     skipWaiting: true,
     clientsClaim: true,
-    additionalManifestEntries: [
-      { url: "/uploads/e2b78fb471885c69.png", revision: null },
-    ],
     runtimeCaching: [
       // Cache all Next.js JS/CSS bundles (long-lived, content-hashed)
       {
@@ -69,6 +66,16 @@ export default withPWA({
           cacheName: "pages",
           networkTimeoutSeconds: 5,
           expiration: { maxEntries: 100, maxAgeSeconds: 24 * 60 * 60 },
+          cacheableResponse: { statuses: [0, 200] },
+        },
+      },
+      // Cache locally uploaded images
+      {
+        urlPattern: /^\/uploads\/.*/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "uploads",
+          expiration: { maxEntries: 300, maxAgeSeconds: 30 * 24 * 60 * 60 },
           cacheableResponse: { statuses: [0, 200] },
         },
       },

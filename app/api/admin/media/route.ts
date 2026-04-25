@@ -12,7 +12,12 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "im
 const MAX_SIZE = 8 * 1024 * 1024; // 8 MB
 
 function readMedia() {
-  return JSON.parse(fs.readFileSync(mediaPath, "utf-8"));
+  if (!fs.existsSync(mediaPath)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(mediaPath, "utf-8"));
+  } catch {
+    return [];
+  }
 }
 
 async function getActor(request: NextRequest) {
@@ -47,6 +52,7 @@ export async function POST(request: NextRequest) {
   const filename = `${id}${ext}`;
   const filePath = path.join(uploadsDir, filename);
 
+  fs.mkdirSync(uploadsDir, { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
   fs.writeFileSync(filePath, buffer);
 

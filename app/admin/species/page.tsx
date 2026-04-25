@@ -198,6 +198,7 @@ function ImagePicker({
   const [media, setMedia] = useState<MediaEntry[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -216,13 +217,21 @@ function ImagePicker({
 
   async function uploadAndSelect(files: FileList) {
     setUploading(true);
+    setUploadError("");
     const fd = new FormData();
     fd.append("file", files[0]);
-    const res = await fetch("/api/admin/media", { method: "POST", body: fd });
-    if (res.ok) {
-      const entry = await res.json();
-      onChange(entry.url);
-      setOpen(false);
+    try {
+      const res = await fetch("/api/admin/media", { method: "POST", body: fd });
+      if (res.ok) {
+        const entry = await res.json();
+        onChange(entry.url);
+        setOpen(false);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setUploadError(err.error || "Upload failed. Please try again.");
+      }
+    } catch {
+      setUploadError("Upload failed. Check your connection and try again.");
     }
     setUploading(false);
     await loadMedia();
@@ -361,6 +370,11 @@ function ImagePicker({
                     onChange={(e) => e.target.files?.length && uploadAndSelect(e.target.files)}
                   />
                 </div>
+                {uploadError && (
+                  <div className="mt-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+                    {uploadError}
+                  </div>
+                )}
               )}
             </div>
           </div>

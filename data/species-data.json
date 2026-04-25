@@ -148,5 +148,35 @@
     "description": "A critically endangered and spectacularly patterned toad-like frog found near fast-flowing mountain streams. Heavily impacted by chytrid fungus across the Andes. Sightings in Manu are increasingly rare and considered exceptional by herpetologists worldwide.",
     "habitat": "Rocky fast-flowing streams in cloud forest",
     "difficulty": "rare"
+  },
+  {
+    "id": "sdgf",
+    "name": "sdgf",
+    "scientific_name": "fchgjkl;",
+    "category": "cow",
+    "image": "/uploads/e2b78fb471885c69.png",
+    "description": "sdxfghujiko",
+    "habitat": "fgjkl;",
+    "difficulty": "rare"
+  },
+  {
+    "id": "",
+    "name": "",
+    "scientific_name": "",
+    "category": "bird",
+    "image": "",
+    "description": "",
+    "habitat": "",
+    "difficulty": "common"
+  },
+  {
+    "id": "sdfg",
+    "name": "sdfg",
+    "scientific_name": "",
+    "category": "bird",
+    "image": "",
+    "description": "",
+    "habitat": "",
+    "difficulty": "common"
   }
 ]

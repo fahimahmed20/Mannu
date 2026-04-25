@@ -1,0 +1,122 @@
+[
+  {
+    "id": "usr_001",
+    "email": "carlos.mendez@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-01-05T08:30:00Z",
+    "lastSeen": "2026-04-18T14:22:00Z",
+    "speciesSeen": 12,
+    "role": "user"
+  },
+  {
+    "id": "usr_002",
+    "email": "amelia.watson@outlook.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-01-12T10:15:00Z",
+    "lastSeen": "2026-04-19T09:41:00Z",
+    "speciesSeen": 7,
+    "role": "user"
+  },
+  {
+    "id": "usr_003",
+    "email": "nature.explorer@yahoo.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-01-20T16:00:00Z",
+    "lastSeen": "2026-03-30T11:05:00Z",
+    "speciesSeen": 15,
+    "role": "user"
+  },
+  {
+    "id": "usr_004",
+    "email": "birdwatcher.peru@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-02-03T07:45:00Z",
+    "lastSeen": "2026-04-17T20:10:00Z",
+    "speciesSeen": 9,
+    "role": "user"
+  },
+  {
+    "id": "usr_005",
+    "email": "green.trails@hotmail.com",
+    "active": false,
+    "banned": false,
+    "joinedAt": "2026-02-14T12:30:00Z",
+    "lastSeen": "2026-02-28T15:00:00Z",
+    "speciesSeen": 2,
+    "role": "user"
+  },
+  {
+    "id": "usr_006",
+    "email": "rainforest.guide@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-02-22T09:00:00Z",
+    "lastSeen": "2026-04-20T08:35:00Z",
+    "speciesSeen": 11,
+    "role": "user"
+  },
+  {
+    "id": "usr_007",
+    "email": "eco.tours.2026@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-03-01T14:20:00Z",
+    "lastSeen": "2026-03-15T17:00:00Z",
+    "speciesSeen": 1,
+    "role": "user"
+  },
+  {
+    "id": "usr_008",
+    "email": "patricia.lopez@example.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-03-08T11:00:00Z",
+    "lastSeen": "2026-04-15T12:45:00Z",
+    "speciesSeen": 6,
+    "role": "user"
+  },
+  {
+    "id": "usr_009",
+    "email": "wildlife.photo@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-03-18T08:00:00Z",
+    "lastSeen": "2026-04-19T16:20:00Z",
+    "speciesSeen": 13,
+    "role": "user"
+  },
+  {
+    "id": "usr_010",
+    "email": "herpetologist.jr@uni.edu",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-04-01T10:30:00Z",
+    "lastSeen": "2026-04-20T07:15:00Z",
+    "speciesSeen": 5,
+    "role": "user"
+  },
+  {
+    "id": "usr_011",
+    "email": "tour.guide.manu@gmail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-04-05T13:00:00Z",
+    "lastSeen": "2026-04-18T18:00:00Z",
+    "speciesSeen": 10,
+    "role": "user"
+  },
+  {
+    "id": "usr_012",
+    "email": "birds.of.peru@mail.com",
+    "active": true,
+    "banned": false,
+    "joinedAt": "2026-04-10T09:45:00Z",
+    "lastSeen": "2026-04-20T10:00:00Z",
+    "speciesSeen": 4,
+    "role": "user"
+  }
+]

@@ -6,7 +6,7 @@ const secret = () =>
     process.env.ADMIN_JWT_SECRET || "fallback-secret-change-me"
   );
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") return NextResponse.next();

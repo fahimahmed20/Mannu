@@ -39,16 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# sensitive data files (never commit these)
-data/admin-users.json
-data/app-users.json
-data/smtp-config.json
-data/activity-log.json
-data/media.json
-
-# uploaded media
-public/uploads/
-
-# claude memory
-.claude/

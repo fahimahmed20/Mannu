@@ -17,7 +17,7 @@ export default function SpeciesPage() {
     checklistLoaded,
   } = useStore();
 
-  const filtered = useMemo(() => {
+const filtered = useMemo(() => {
     return SPECIES.filter((s) => {
       const q = searchQuery.toLowerCase();
       const matchSearch =
@@ -44,7 +44,7 @@ export default function SpeciesPage() {
         Species Guide
       </h1>
 
-      <div className="space-y-3 mb-4">
+<div className="space-y-3 mb-4">
         <SearchBar />
         <FilterBar />
       </div>

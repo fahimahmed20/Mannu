@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useAdmin } from "@/app/admin/layout";
+import { useAdmin } from "@/app/admin/admin-context";
 
 interface TeamMember {
   id: string;

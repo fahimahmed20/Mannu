@@ -31,10 +31,6 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { name, scientific_name, category, image, description, habitat, difficulty } = body;
 
-  if (!name || !scientific_name || !category || !description || !habitat || !difficulty) {
-    return NextResponse.json({ error: "All fields are required" }, { status: 400 });
-  }
-
   const id = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   const data = readSpecies();
 

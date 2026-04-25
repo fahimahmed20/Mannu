@@ -1,6 +1,182 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useId } from "react";
+
+const CSV_HEADERS = ["name", "scientific_name", "category", "image", "description", "habitat", "difficulty"] as const;
+
+function exportToCsv(species: Species[]) {
+  const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const rows = [
+    CSV_HEADERS.join(","),
+    ...species.map((s) =>
+      CSV_HEADERS.map((h) => escape(s[h] ?? "")).join(",")
+    ),
+  ];
+  const blob = new Blob([rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "species-export.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseCsv(text: string): Record<string, string>[] {
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim().split("\n");
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+  return lines.slice(1).map((line) => {
+    const values: string[] = [];
+    let cur = "";
+    let inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+        else inQuote = !inQuote;
+      } else if (ch === "," && !inQuote) {
+        values.push(cur); cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    values.push(cur);
+    const obj: Record<string, string> = {};
+    headers.forEach((h, i) => { obj[h] = (values[i] ?? "").trim(); });
+    return obj;
+  });
+}
+
+function ImportModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
+  const inputId = useId();
+  const [rows, setRows] = useState<Record<string, string>[] | null>(null);
+  const [filename, setFilename] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState<{ added: number; skipped: number; errors: string[] } | null>(null);
+  const [parseError, setParseError] = useState("");
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFilename(file.name);
+    setResult(null);
+    setParseError("");
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = parseCsv(ev.target?.result as string);
+        if (parsed.length === 0) { setParseError("No data rows found in file."); return; }
+        const missing = CSV_HEADERS.filter((h) => !(h in parsed[0]));
+        if (missing.length > 0) { setParseError(`Missing columns: ${missing.join(", ")}`); return; }
+        setRows(parsed);
+      } catch {
+        setParseError("Failed to parse CSV.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  async function handleImport() {
+    if (!rows) return;
+    setImporting(true);
+    const res = await fetch("/api/admin/species/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(rows),
+    });
+    const data = await res.json();
+    setResult(data);
+    setImporting(false);
+    if (data.added > 0) onImported();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-stone-200">
+          <h2 className="font-bold text-slate-800 text-lg">Import Species from CSV</h2>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-600">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="p-6 space-y-5">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 space-y-1">
+            <p className="font-semibold text-slate-700">Required CSV columns:</p>
+            <p className="font-mono">{CSV_HEADERS.join(", ")}</p>
+            <p className="text-slate-400 mt-1">difficulty must be: common, uncommon, or rare</p>
+          </div>
+
+          <div>
+            <label htmlFor={inputId} className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
+              CSV File
+            </label>
+            <label
+              htmlFor={inputId}
+              className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-emerald-400 rounded-xl p-8 cursor-pointer transition-colors"
+            >
+              <svg className="w-8 h-8 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium text-slate-600">
+                {filename ? filename : "Click to choose a .csv file"}
+              </span>
+              <input id={inputId} type="file" accept=".csv,text/csv" className="hidden" onChange={handleFile} />
+            </label>
+          </div>
+
+          {parseError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{parseError}</div>
+          )}
+
+          {rows && !result && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl px-4 py-3">
+              <span className="font-semibold">{rows.length} rows</span> ready to import from <span className="font-mono">{filename}</span>
+            </div>
+          )}
+
+          {result && (
+            <div className="space-y-2">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-800">
+                <span className="font-semibold">{result.added} added</span>
+                {result.skipped > 0 && <span className="text-slate-500">, {result.skipped} skipped (already exist)</span>}
+              </div>
+              {result.errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs text-red-700 space-y-1">
+                  {result.errors.map((e, i) => <div key={i}>{e}</div>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-1">
+            {!result ? (
+              <button
+                onClick={handleImport}
+                disabled={!rows || importing}
+                className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+              >
+                {importing ? "Importing..." : "Import"}
+              </button>
+            ) : (
+              <button
+                onClick={onClose}
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+              >
+                Done
+              </button>
+            )}
+            <button onClick={onClose} className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium px-5 py-2.5 rounded-xl text-sm transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface MediaEntry {
   id: string;
@@ -259,7 +435,6 @@ function SpeciesForm({
             Common Name *
           </label>
           <input
-            required
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
             placeholder="e.g. Scarlet Macaw"
@@ -271,7 +446,6 @@ function SpeciesForm({
             Scientific Name *
           </label>
           <input
-            required
             value={form.scientific_name}
             onChange={(e) => set("scientific_name", e.target.value)}
             placeholder="e.g. Ara macao"
@@ -311,7 +485,6 @@ function SpeciesForm({
             Habitat *
           </label>
           <input
-            required
             value={form.habitat}
             onChange={(e) => set("habitat", e.target.value)}
             placeholder="e.g. River banks, forest canopy"
@@ -326,7 +499,6 @@ function SpeciesForm({
             Description *
           </label>
           <textarea
-            required
             rows={4}
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
@@ -432,6 +604,7 @@ export default function SpeciesManagementPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "common" | "uncommon" | "rare">("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
@@ -495,19 +668,40 @@ export default function SpeciesManagementPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Species</h1>
           <p className="text-slate-500 text-sm mt-1">
             {species.length} species in the field guide
           </p>
         </div>
-        <button
-          onClick={() => { setShowAdd(true); setAddError(""); setAddSuccess(""); }}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm"
-        >
-          + Add Species
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => exportToCsv(species)}
+            disabled={species.length === 0}
+            className="bg-white border border-stone-300 hover:bg-stone-50 disabled:opacity-40 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </button>
+          <button
+            onClick={() => setShowImport(true)}
+            className="bg-white border border-stone-300 hover:bg-stone-50 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12" />
+            </svg>
+            Import CSV
+          </button>
+          <button
+            onClick={() => { setShowAdd(true); setAddError(""); setAddSuccess(""); }}
+            className="bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm"
+          >
+            + Add Species
+          </button>
+        </div>
       </div>
 
       {/* Add form */}
@@ -715,6 +909,14 @@ export default function SpeciesManagementPage() {
           species={editTarget}
           onClose={() => setEditTarget(null)}
           onSaved={load}
+        />
+      )}
+
+      {/* Import modal */}
+      {showImport && (
+        <ImportModal
+          onClose={() => setShowImport(false)}
+          onImported={load}
         />
       )}
     </div>

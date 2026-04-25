@@ -2,17 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect, createContext, useContext } from "react";
-
-interface AdminUser {
-  username: string;
-  role: "superadmin" | "admin" | "editor";
-  email: string;
-  id: string;
-}
-
-const AdminContext = createContext<AdminUser | null>(null);
-export const useAdmin = () => useContext(AdminContext);
+import { useState, useEffect } from "react";
+import { AdminContext, type AdminUser } from "./admin-context";
 
 const roleBadge: Record<string, string> = {
   superadmin: "bg-amber-500/20 text-amber-300 border-amber-500/30",

@@ -47,26 +47,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="px-5 pt-6">
-        <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-3">Categories</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {categories.map((cat) => {
-            const p = getPalette(cat.paletteId);
-            return (
-              <CategoryCard
-                key={cat.id}
-                id={cat.id}
-                label={cat.label}
-                emoji={cat.emoji}
-                gradient={`linear-gradient(135deg, ${p.from}, ${p.to})`}
-                total={SPECIES.filter((s) => s.category === cat.id).length}
-              />
-            );
-          })}
-        </div>
-      </div>
-
       {/* Quick Actions */}
       <div className="px-5 pt-6">
         <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-3">Quick Access</h2>
@@ -93,6 +73,26 @@ export default function HomePage() {
               <p className="text-stone-400 text-xs mt-0.5">{totalSpecies} species</p>
             </div>
           </Link>
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div className="px-5 pt-6">
+        <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-3">Categories</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {categories.map((cat) => {
+            const p = getPalette(cat.paletteId);
+            return (
+              <CategoryCard
+                key={cat.id}
+                id={cat.id}
+                label={cat.label}
+                emoji={cat.emoji}
+                gradient={`linear-gradient(135deg, ${p.from}, ${p.to})`}
+                total={SPECIES.filter((s) => s.category === cat.id).length}
+              />
+            );
+          })}
         </div>
       </div>
 

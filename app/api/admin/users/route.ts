@@ -4,7 +4,7 @@ import path from "path";
 
 const usersPath = path.join(process.cwd(), "data", "app-users.json");
 
-export function readUsers() {
+function readUsers() {
   return JSON.parse(fs.readFileSync(usersPath, "utf-8"));
 }
 

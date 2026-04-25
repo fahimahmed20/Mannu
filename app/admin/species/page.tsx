@@ -353,28 +353,30 @@ function ImagePicker({
                   </div>
                 )
               ) : (
-                <div
-                  className="border-2 border-dashed border-slate-300 hover:border-emerald-400 rounded-2xl p-12 text-center cursor-pointer transition-colors"
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <div className="text-4xl mb-3">📤</div>
-                  <div className="text-sm font-semibold text-slate-600">
-                    {uploading ? "Uploading..." : "Click to upload an image"}
+                <>
+                  <div
+                    className="border-2 border-dashed border-slate-300 hover:border-emerald-400 rounded-2xl p-12 text-center cursor-pointer transition-colors"
+                    onClick={() => inputRef.current?.click()}
+                  >
+                    <div className="text-4xl mb-3">📤</div>
+                    <div className="text-sm font-semibold text-slate-600">
+                      {uploading ? "Uploading..." : "Click to upload an image"}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">JPG, PNG, WebP, GIF — max 8 MB</div>
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.length && uploadAndSelect(e.target.files)}
+                    />
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">JPG, PNG, WebP, GIF — max 8 MB</div>
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.length && uploadAndSelect(e.target.files)}
-                  />
-                </div>
-                {uploadError && (
-                  <div className="mt-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-                    {uploadError}
-                  </div>
-                )}
+                  {uploadError && (
+                    <div className="mt-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+                      {uploadError}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

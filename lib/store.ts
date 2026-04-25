@@ -1,8 +1,12 @@
 import { create } from "zustand";
-import { type Category, SPECIES } from "@/data/species";
-import { getAllChecklist, updateSeen, type ChecklistEntry } from "@/lib/db";
+import { type Category, SPECIES as BUNDLED_SPECIES, type Species } from "@/data/species";
+import { getAllChecklist, updateSeen, getUser, clearUser, type ChecklistEntry } from "@/lib/db";
 
 export interface AppState {
+  // Species (API-loaded, bundled data as initial fallback)
+  species: Species[];
+  loadSpecies: () => Promise<void>;
+
   // Checklist
   checklist: Record<string, boolean>;
   checklistLoaded: boolean;
@@ -20,6 +24,8 @@ export interface AppState {
   // Auth / User
   user: { email: string; token: string } | null;
   setUser: (user: { email: string; token: string } | null) => void;
+  loadUser: () => Promise<void>;
+  logout: () => Promise<void>;
 
   // Computed helpers
   getSeenCount: () => number;
@@ -28,7 +34,22 @@ export interface AppState {
 }
 
 export const useStore = create<AppState>((set, get) => ({
-  // ── Checklist ──────────────────────────────────────────────────
+  // ── Species ──────────────────────────────────────────────────────────
+  species: BUNDLED_SPECIES,
+
+  loadSpecies: async () => {
+    try {
+      const res = await fetch("/api/species");
+      if (res.ok) {
+        const { species } = await res.json();
+        set({ species });
+      }
+    } catch {
+      // offline — keep bundled fallback
+    }
+  },
+
+  // ── Checklist ──────────────────────────────────────────────────────
   checklist: {},
   checklistLoaded: false,
 
@@ -55,14 +76,13 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       await updateSeen(speciesId, next);
     } catch {
-      // Roll back on DB error
       set((state) => ({
         checklist: { ...state.checklist, [speciesId]: current },
       }));
     }
   },
 
-  // ── Filters ────────────────────────────────────────────────────
+  // ── Filters ─────────────────────────────────────────────────────────
   searchQuery: "",
   setSearchQuery: (q) => set({ searchQuery: q }),
 
@@ -72,24 +92,71 @@ export const useStore = create<AppState>((set, get) => ({
   seenFilter: "all",
   setSeenFilter: (f) => set({ seenFilter: f }),
 
-  // ── Auth ───────────────────────────────────────────────────────
+  // ── Auth ─────────────────────────────────────────────────────────────
   user: null,
   setUser: (user) => set({ user }),
 
-  // ── Computed ───────────────────────────────────────────────────
+  loadUser: async () => {
+    try {
+      const stored = await getUser();
+      if (!stored?.token || !stored?.email) return;
+
+      const res = await fetch("/api/auth/me", {
+        headers: { Authorization: `Bearer ${stored.token}` },
+      });
+
+      if (res.ok) {
+        const { user } = await res.json();
+        set({ user: { email: user.email, token: stored.token } });
+        if (typeof window !== "undefined") {
+          localStorage.setItem("manu_token", stored.token);
+        }
+      } else {
+        await clearUser();
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("manu_token");
+        }
+      }
+    } catch {
+      // Network offline — restore from IndexedDB without server validation
+      try {
+        const stored = await getUser();
+        if (stored?.token && stored?.email) {
+          set({ user: { email: stored.email, token: stored.token } });
+        }
+      } catch {
+        // ignore
+      }
+    }
+  },
+
+  logout: async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore network errors on logout
+    }
+    await clearUser();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("manu_token");
+    }
+    set({ user: null });
+  },
+
+  // ── Computed ─────────────────────────────────────────────────────────
   getSeenCount: () => {
     const { checklist } = get();
     return Object.values(checklist).filter(Boolean).length;
   },
 
   getSeenCountByCategory: (category: Category) => {
-    const { checklist } = get();
-    return SPECIES.filter(
+    const { checklist, species } = get();
+    return species.filter(
       (s) => s.category === category && checklist[s.id]
     ).length;
   },
 
   getTotalByCategory: (category: Category) => {
-    return SPECIES.filter((s) => s.category === category).length;
+    return get().species.filter((s) => s.category === category).length;
   },
 }));

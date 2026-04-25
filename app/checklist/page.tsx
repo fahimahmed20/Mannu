@@ -4,12 +4,12 @@ import { Suspense } from "react";
 import Link from "next/link";
 import OfflineImage from "@/components/OfflineImage";
 import { useStore } from "@/lib/store";
-import { SPECIES, CATEGORIES } from "@/data/species";
+import { CATEGORIES } from "@/data/species";
 import type { Category } from "@/data/species";
 
 function SeenSpeciesRow({ speciesId }: { speciesId: string }) {
-  const { toggleSeen } = useStore();
-  const species = SPECIES.find((s) => s.id === speciesId);
+  const { toggleSeen, species: allSpecies } = useStore();
+  const species = allSpecies.find((s) => s.id === speciesId);
   if (!species) return null;
 
   return (
@@ -51,7 +51,7 @@ function SeenSpeciesRow({ speciesId }: { speciesId: string }) {
 }
 
 function ChecklistContent() {
-  const { checklist, checklistLoaded, getSeenCountByCategory, getTotalByCategory } =
+  const { checklist, checklistLoaded, getSeenCountByCategory, getTotalByCategory, species: allSpecies } =
     useStore();
 
   const seenIds = Object.entries(checklist)
@@ -59,7 +59,7 @@ function ChecklistContent() {
     .map(([k]) => k);
 
   const totalSeen = seenIds.length;
-  const totalAll = SPECIES.length;
+  const totalAll = allSpecies.length;
 
   if (!checklistLoaded) {
     return (
@@ -120,7 +120,7 @@ function ChecklistContent() {
       <div className="mt-6 space-y-6">
         {CATEGORIES.map((cat) => {
           const catSeenIds = seenIds.filter((id) => {
-            const s = SPECIES.find((sp) => sp.id === id);
+            const s = allSpecies.find((sp) => sp.id === id);
             return s?.category === cat.id;
           });
           if (catSeenIds.length === 0) return null;

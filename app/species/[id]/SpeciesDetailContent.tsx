@@ -57,12 +57,12 @@ export default function SpeciesDetailContent({
       </div>
 
       {/* Hero image */}
-      <div className="relative mx-5 mt-1 rounded-3xl overflow-hidden h-64 bg-stone-200 shadow-lg">
+      <div className="relative mt-1 overflow-hidden h-80 bg-stone-100">
         <OfflineImage
           src={species.image}
           alt={species.name}
           fill
-          className="object-cover"
+          className="object-contain"
           sizes="(max-width: 640px) 100vw, 640px"
           priority
         />

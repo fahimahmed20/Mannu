@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useStore } from "@/lib/store";
-import { SPECIES } from "@/data/species";
 import SpeciesCard from "@/components/SpeciesCard";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
@@ -15,10 +14,11 @@ export default function SpeciesPage() {
     seenFilter,
     checklist,
     checklistLoaded,
+    species,
   } = useStore();
 
 const filtered = useMemo(() => {
-    return SPECIES.filter((s) => {
+    return species.filter((s) => {
       const q = searchQuery.toLowerCase();
       const matchSearch =
         !q ||
@@ -36,7 +36,7 @@ const filtered = useMemo(() => {
 
       return matchSearch && matchCategory && matchSeen;
     });
-  }, [searchQuery, categoryFilter, seenFilter, checklist]);
+  }, [searchQuery, categoryFilter, seenFilter, checklist, species]);
 
   return (
     <div className="page-enter px-5 pt-6">

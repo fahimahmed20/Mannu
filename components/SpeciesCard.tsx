@@ -35,12 +35,12 @@ export default function SpeciesCard({ species }: Props) {
         }`}
       >
         {/* Image */}
-        <div className="relative h-40 bg-stone-100">
+        <div className="relative h-52 bg-stone-100">
           <OfflineImage
             src={species.image}
             alt={species.name}
             fill
-            className="object-cover"
+            className="object-contain"
             sizes="(max-width: 640px) 50vw, 33vw"
             loading="lazy"
           />

@@ -31,7 +31,12 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { name, scientific_name, category, image, description, habitat, difficulty } = body;
 
-  const id = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  if (!scientific_name || !scientific_name.trim()) {
+    return NextResponse.json({ error: "Scientific name is required" }, { status: 400 });
+  }
+
+  const idSource = (name && name.trim()) ? name.trim() : scientific_name.trim();
+  const id = idSource.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   const data = readSpecies();
 
   if (data.find((s: { id: string }) => s.id === id)) {

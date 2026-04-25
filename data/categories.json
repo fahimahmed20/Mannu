@@ -1,20 +1,12 @@
 [
-  {
-    "id": "bird",
-    "label": "Birds",
-    "emoji": "🦜",
-    "paletteId": "emerald"
-  },
-  {
-    "id": "frog",
-    "label": "Frogs",
-    "emoji": "🐸",
-    "paletteId": "lime"
-  },
-  {
-    "id": "cow",
-    "label": "Cow",
-    "emoji": "🐾",
-    "paletteId": "indigo"
-  }
+  { "id": "bird",        "label": "Birds",        "emoji": "🦜", "paletteId": "emerald" },
+  { "id": "amphibian",   "label": "Amphibians",   "emoji": "🐸", "paletteId": "lime"    },
+  { "id": "reptile",     "label": "Reptiles",     "emoji": "🐍", "paletteId": "indigo"  },
+  { "id": "large-mammal","label": "Large Mammals","emoji": "🐆", "paletteId": "orange"  },
+  { "id": "bat",         "label": "Bats",         "emoji": "🦇", "paletteId": "slate"   },
+  { "id": "fruit",       "label": "Fruits",       "emoji": "🍎", "paletteId": "red"     },
+  { "id": "orchid",      "label": "Orchids",      "emoji": "🌸", "paletteId": "pink"    },
+  { "id": "herpetofauna","label": "Herpetofauna", "emoji": "🦎", "paletteId": "teal"   },
+  { "id": "dung-beetle", "label": "Dung Beetles", "emoji": "🪲", "paletteId": "amber"   },
+  { "id": "fungus",      "label": "Fungi",        "emoji": "🍄", "paletteId": "purple"  }
 ]

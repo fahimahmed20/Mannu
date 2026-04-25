@@ -400,7 +400,7 @@ interface Species {
 const empty: Omit<Species, "id"> = {
   name: "",
   scientific_name: "",
-  category: "bird",
+  category: "",
   image: "",
   description: "",
   habitat: "",
@@ -428,27 +428,39 @@ function SpeciesForm({
 }) {
   const [form, setForm] = useState(initial);
   const [categories, setCategories] = useState<{ id: string; label: string; emoji: string }[]>([]);
+  const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/categories").then((r) => r.json()).then(setCategories);
+    fetch("/api/admin/categories").then((r) => r.json()).then(setCategories).catch(() => {});
   }, []);
 
   function set(field: keyof typeof form, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
+    if (field === "scientific_name") setValidationError("");
   }
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (!form.scientific_name.trim()) {
+          setValidationError("Scientific Name is required.");
+          return;
+        }
+        setValidationError("");
         onSubmit(form);
       }}
       className="space-y-5"
     >
+      {validationError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          {validationError}
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-            Common Name *
+            Common Name
           </label>
           <input
             value={form.name}
@@ -468,59 +480,23 @@ function SpeciesForm({
             className="w-full border border-stone-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 sm:col-span-2">
           <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-            Category *
+            Category
           </label>
           <select
             value={form.category}
             onChange={(e) => set("category", e.target.value)}
             className="w-full border border-stone-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
+            <option value="">— Select a category —</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>
             ))}
           </select>
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-            Difficulty *
-          </label>
-          <select
-            value={form.difficulty}
-            onChange={(e) => set("difficulty", e.target.value)}
-            className="w-full border border-stone-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          >
-            <option value="common">🟢 Common</option>
-            <option value="uncommon">🟡 Uncommon</option>
-            <option value="rare">🔴 Rare</option>
-          </select>
-        </div>
-        <div className="space-y-1 sm:col-span-2">
-          <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-            Habitat *
-          </label>
-          <input
-            value={form.habitat}
-            onChange={(e) => set("habitat", e.target.value)}
-            placeholder="e.g. River banks, forest canopy"
-            className="w-full border border-stone-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-        </div>
         <div className="sm:col-span-2">
           <ImagePicker value={form.image} onChange={(url) => set("image", url)} />
-        </div>
-        <div className="space-y-1 sm:col-span-2">
-          <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-            Description *
-          </label>
-          <textarea
-            rows={4}
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-            placeholder="Describe appearance, behavior, and interesting facts..."
-            className="w-full border border-stone-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
-          />
         </div>
       </div>
       <div className="flex gap-3 pt-2">
@@ -659,20 +635,28 @@ export default function SpeciesManagementPage() {
     setAddLoading(true);
     setAddError("");
     setAddSuccess("");
-    const res = await fetch("/api/admin/species", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      setAddSuccess("Species added!");
-      setShowAdd(false);
-      await load();
-    } else {
-      const d = await res.json();
-      setAddError(d.error || "Failed to add");
+    try {
+      const res = await fetch("/api/admin/species", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setShowAdd(false);
+        await load();
+      } else {
+        let errMsg = "Failed to add species. Please try again.";
+        try {
+          const d = await res.json();
+          errMsg = d.error || errMsg;
+        } catch { /* non-JSON response */ }
+        setAddError(errMsg);
+      }
+    } catch {
+      setAddError("Network error. Please check your connection and try again.");
+    } finally {
+      setAddLoading(false);
     }
-    setAddLoading(false);
   }
 
   async function handleDelete(id: string, name: string) {

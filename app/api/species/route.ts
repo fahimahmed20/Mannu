@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
-import { SPECIES } from "@/data/species";
+import fs from "fs";
+import path from "path";
+
+const dataPath = path.join(process.cwd(), "data", "species-data.json");
 
 export async function GET() {
-  const valid = SPECIES.filter((s) => s.id && s.name);
+  const data: { id?: string; name?: string }[] = JSON.parse(
+    fs.readFileSync(dataPath, "utf-8")
+  );
+  const valid = data.filter((s) => s.id && s.name);
   return NextResponse.json({ species: valid });
 }

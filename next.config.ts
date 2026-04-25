@@ -79,6 +79,16 @@ export default withPWA({
           cacheableResponse: { statuses: [0, 200] },
         },
       },
+      // Cache imported species images
+      {
+        urlPattern: /^\/species-images\/.*/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "species-images-local",
+          expiration: { maxEntries: 1200, maxAgeSeconds: 90 * 24 * 60 * 60 },
+          cacheableResponse: { statuses: [0, 200] },
+        },
+      },
       // Cache external species images
       {
         urlPattern: /^https:\/\/picsum\.photos\/.*/i,

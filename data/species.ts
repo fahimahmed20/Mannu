@@ -13,6 +13,8 @@ export interface Species {
   description: string;
   habitat: string;
   difficulty: "common" | "uncommon" | "rare";
+  family?: string;
+  source_title?: string;
 }
 
 export const SPECIES: Species[] = speciesData as Species[];

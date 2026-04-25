@@ -7,10 +7,12 @@ const FALLBACK = "/placeholder-species.svg";
 
 export default function OfflineImage({ src, ...props }: ImageProps) {
   const [imgSrc, setImgSrc] = useState(src || FALLBACK);
+  const unoptimized = typeof imgSrc === "string" && imgSrc.endsWith(".svg");
   return (
     <Image
       {...props}
       src={imgSrc}
+      unoptimized={unoptimized}
       onError={() => setImgSrc(FALLBACK)}
     />
   );

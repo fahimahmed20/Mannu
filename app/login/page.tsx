@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { saveUser, clearUser, getAllChecklist } from "@/lib/db";
+import { saveUser } from "@/lib/db";
 import { api } from "@/lib/api";
 
 type Step = "home" | "email" | "otp" | "syncing" | "done";
 
 export default function LoginPage() {
-  const { user, setUser, getSeenCount, loadChecklist } = useStore();
+  const { user, setUser, logout: storeLogout, getSeenCount } = useStore();
   const [step, setStep] = useState<Step>("home");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -51,28 +51,8 @@ export default function LoginPage() {
 
       // Save token and user
       localStorage.setItem("manu_token", res.token);
-      await saveUser({ id: String(res.user.id), email: res.user.email, token: res.token });
+      await saveUser({ id: res.user.id, email: res.user.email, token: res.token });
       setUser({ email: res.user.email, token: res.token });
-
-      // Sync local checklist to server
-      const localItems = await getAllChecklist();
-      const seenItems = localItems.filter((i) => i.seen);
-
-      if (seenItems.length > 0) {
-        setStep("syncing");
-        try {
-          await api.syncChecklist(
-            seenItems.map((i) => ({
-              species_id: i.species_id,
-              seen: i.seen,
-              timestamp: i.timestamp,
-            }))
-          );
-        } catch (syncError) {
-          console.error("Sync error:", syncError);
-          // Continue even if sync fails - local data is preserved
-        }
-      }
 
       setStep("done");
     } catch (e: unknown) {
@@ -85,15 +65,7 @@ export default function LoginPage() {
   }
 
   async function handleLogout() {
-    try {
-      await api.logout();
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Continue with local logout even if server logout fails
-    }
-    localStorage.removeItem("manu_token");
-    await clearUser();
-    setUser(null);
+    await storeLogout();
     setDevOtp(null);
     setStep("home");
   }

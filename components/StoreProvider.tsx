@@ -8,11 +8,13 @@ export default function StoreProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { loadChecklist } = useStore();
+  const { loadChecklist, loadUser, loadSpecies } = useStore();
 
   useEffect(() => {
     loadChecklist();
-  }, [loadChecklist]);
+    loadUser();
+    loadSpecies();
+  }, [loadChecklist, loadUser, loadSpecies]);
 
   return <>{children}</>;
 }

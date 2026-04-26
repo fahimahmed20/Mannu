@@ -20,12 +20,23 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install & build (on CI runner — plenty of RAM)
+        run: |
+          npm ci
+          npm run build
 
-      - name: Build (verify it compiles)
-        run: npm run build
+      # ── Upload the pre-built .next/ from CI to server ──────────────────
+      - name: Upload .next build output to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          source: ".next/"
+          target: "~/manu-explorers/"
 
+      # ── Pull code + restore data + restart (no server-side build needed) ─
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,23 +47,31 @@ jobs:
           script: |
             set -e
 
-            # ── Backup runtime data files that admin edits (not safe to overwrite) ──
+            # ── Backup runtime data files edited by admin ──
             mkdir -p /tmp/manu-backup
-            [ -f ~/manu-explorers/data/species-data.json ]  && cp ~/manu-explorers/data/species-data.json  /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/categories.json ]     && cp ~/manu-explorers/data/categories.json    /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/admin-users.json ]    && cp ~/manu-explorers/data/admin-users.json   /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/app-config.json ]     && cp ~/manu-explorers/data/app-config.json    /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/species-data.json ] && cp ~/manu-explorers/data/species-data.json  /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/categories.json ]   && cp ~/manu-explorers/data/categories.json    /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/admin-users.json ]  && cp ~/manu-explorers/data/admin-users.json   /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/app-config.json ]   && cp ~/manu-explorers/data/app-config.json    /tmp/manu-backup/
 
-            # ── Clone fresh if not a git repo, otherwise pull ──
+            # ── Pull latest code (or clone if first time) ──
             if [ -d ~/manu-explorers/.git ]; then
               cd ~/manu-explorers
               git fetch origin main
               git reset --hard origin/main
             else
-              rm -rf ~/manu-explorers
+              # First deploy: clone without .next (already uploaded via scp above)
+              mv ~/manu-explorers ~/manu-explorers-old 2>/dev/null || true
               git clone https://github.com/fahimahmed20/Mannu.git ~/manu-explorers
+              # Restore .next build that was uploaded before the clone
+              [ -d ~/manu-explorers-old/.next ] && cp -r ~/manu-explorers-old/.next ~/manu-explorers/
+              rm -rf ~/manu-explorers-old
               cd ~/manu-explorers
             fi
+
+            # ── Install production dependencies only (much lighter than full ci) ──
+            npm install --omit=dev --prefer-offline --no-audit --no-fund 2>/dev/null || \
+            npm install --omit=dev --no-audit --no-fund
 
             # ── Restore admin data files ──
             [ -f /tmp/manu-backup/species-data.json ] && cp /tmp/manu-backup/species-data.json data/
@@ -61,17 +80,13 @@ jobs:
             [ -f /tmp/manu-backup/app-config.json ]   && cp /tmp/manu-backup/app-config.json   data/
             rm -rf /tmp/manu-backup
 
-            # ── Install & build ──
-            npm ci --prefer-offline
-            npm run build
-
             # ── Init runtime data files if missing ──
-            [ -f data/media.json ]       || echo "[]"  > data/media.json
+            [ -f data/media.json ]        || echo "[]" > data/media.json
             [ -f data/activity-log.json ] || echo "[]" > data/activity-log.json
             [ -f data/app-users.json ]    || echo "[]" > data/app-users.json
             [ -f data/otp-store.json ]    || echo "{}" > data/otp-store.json
 
-            # ── Restart app ──
+            # ── Restart ──
             mkdir -p public/uploads tmp
             touch tmp/restart.txt
 

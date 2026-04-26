@@ -4,10 +4,14 @@ import path from "path";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { logAction } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 const catPath = path.join(process.cwd(), "data", "categories.json");
 const speciesPath = path.join(process.cwd(), "data", "species-data.json");
 
-function read() { return JSON.parse(fs.readFileSync(catPath, "utf-8")); }
+function read() {
+  try { return JSON.parse(fs.readFileSync(catPath, "utf-8")); } catch { return []; }
+}
 function write(d: unknown[]) { fs.writeFileSync(catPath, JSON.stringify(d, null, 2)); }
 
 async function getActor(req: NextRequest) {

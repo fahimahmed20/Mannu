@@ -592,6 +592,7 @@ export default function SpeciesManagementPage() {
   const [species, setSpecies] = useState<Species[]>([]);
   const [filtered, setFiltered] = useState<Species[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "common" | "uncommon" | "rare">("all");
@@ -604,13 +605,23 @@ export default function SpeciesManagementPage() {
   const [categories, setCategories] = useState<{ id: string; label: string; emoji: string }[]>([]);
 
   const load = useCallback(async () => {
-    const [specRes, catRes] = await Promise.all([
-      fetch("/api/admin/species"),
-      fetch("/api/admin/categories"),
-    ]);
-    setSpecies(await specRes.json());
-    setCategories(await catRes.json());
-    setLoading(false);
+    setLoadError("");
+    try {
+      const [specRes, catRes] = await Promise.all([
+        fetch("/api/admin/species"),
+        fetch("/api/admin/categories"),
+      ]);
+      if (!specRes.ok) throw new Error(`Species API error: ${specRes.status}`);
+      if (!catRes.ok) throw new Error(`Categories API error: ${catRes.status}`);
+      const specData = await specRes.json();
+      const catData = await catRes.json();
+      setSpecies(Array.isArray(specData) ? specData : []);
+      setCategories(Array.isArray(catData) ? catData : []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load species");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -771,7 +782,13 @@ export default function SpeciesManagementPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
-        {loading ? (
+        {loadError ? (
+          <div className="p-12 text-center text-red-500 text-sm">
+            <div className="font-semibold mb-1">Failed to load species</div>
+            <div className="text-xs text-red-400 mb-3">{loadError}</div>
+            <button onClick={load} className="text-xs font-semibold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">Retry</button>
+          </div>
+        ) : loading ? (
           <div className="p-12 text-center text-stone-400 text-sm">Loading...</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-stone-400 text-sm">No species found.</div>

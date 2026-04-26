@@ -7,6 +7,8 @@ import {
 } from "@/lib/admin-auth";
 import { logAction } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 async function getActor(request: NextRequest) {
   const token = request.cookies.get("admin_token")?.value;
   if (!token) return null;

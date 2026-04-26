@@ -4,6 +4,8 @@ import path from "path";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { logAction } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 const usersPath = path.join(process.cwd(), "data", "app-users.json");
 
 async function getActor(request: NextRequest) {

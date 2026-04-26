@@ -4,12 +4,18 @@ import path from "path";
 import { readAdminUsers } from "@/lib/admin-auth";
 import { readLog } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 const speciesPath = path.join(process.cwd(), "data", "species-data.json");
 const usersPath = path.join(process.cwd(), "data", "app-users.json");
 
+function readJson(p: string, fallback: unknown) {
+  try { return JSON.parse(fs.readFileSync(p, "utf-8")); } catch { return fallback; }
+}
+
 export async function GET() {
-  const species = JSON.parse(fs.readFileSync(speciesPath, "utf-8"));
-  const appUsers = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
+  const species = readJson(speciesPath, []) as { category: string; difficulty: string }[];
+  const appUsers = readJson(usersPath, []) as { joinedAt: string; lastSeen: string; banned: boolean; speciesSeen: number; email: string }[];
   const adminUsers = readAdminUsers();
   const log = readLog().slice(0, 20);
 
@@ -18,11 +24,11 @@ export async function GET() {
   const last7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const newUsersLast30 = appUsers.filter(
-    (u: { joinedAt: string }) => new Date(u.joinedAt) > last30
+    (u) => new Date(u.joinedAt) > last30
   ).length;
 
   const activeUsersLast7 = appUsers.filter(
-    (u: { lastSeen: string }) => new Date(u.lastSeen) > last7
+    (u) => new Date(u.lastSeen) > last7
   ).length;
 
   // User growth by month (last 6 months)
@@ -32,7 +38,7 @@ export async function GET() {
     const key = d.toLocaleString("default", { month: "short" });
     monthlyGrowth[key] = 0;
   }
-  appUsers.forEach((u: { joinedAt: string }) => {
+  appUsers.forEach((u) => {
     const d = new Date(u.joinedAt);
     const key = d.toLocaleString("default", { month: "short" });
     if (key in monthlyGrowth) monthlyGrowth[key]++;
@@ -40,22 +46,22 @@ export async function GET() {
 
   // Species by category
   const byCategory = {
-    bird: species.filter((s: { category: string }) => s.category === "bird").length,
-    frog: species.filter((s: { category: string }) => s.category === "frog").length,
+    bird: species.filter((s) => s.category === "bird").length,
+    frog: species.filter((s) => s.category === "frog").length,
   };
 
   // Species by difficulty
   const byDifficulty = {
-    common: species.filter((s: { difficulty: string }) => s.difficulty === "common").length,
-    uncommon: species.filter((s: { difficulty: string }) => s.difficulty === "uncommon").length,
-    rare: species.filter((s: { difficulty: string }) => s.difficulty === "rare").length,
+    common: species.filter((s) => s.difficulty === "common").length,
+    uncommon: species.filter((s) => s.difficulty === "uncommon").length,
+    rare: species.filter((s) => s.difficulty === "rare").length,
   };
 
   // Species seen leaderboard
   const topUsers = [...appUsers]
-    .sort((a: { speciesSeen: number }, b: { speciesSeen: number }) => b.speciesSeen - a.speciesSeen)
+    .sort((a, b) => b.speciesSeen - a.speciesSeen)
     .slice(0, 5)
-    .map((u: { email: string; speciesSeen: number }) => ({
+    .map((u) => ({
       email: u.email,
       speciesSeen: u.speciesSeen,
     }));
@@ -68,8 +74,8 @@ export async function GET() {
     },
     users: {
       total: appUsers.length,
-      active: appUsers.filter((u: { banned: boolean }) => !u.banned).length,
-      banned: appUsers.filter((u: { banned: boolean }) => u.banned).length,
+      active: appUsers.filter((u) => !u.banned).length,
+      banned: appUsers.filter((u) => u.banned).length,
       newLast30: newUsersLast30,
       activeLast7: activeUsersLast7,
       monthlyGrowth,

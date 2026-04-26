@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
+export const dynamic = "force-dynamic";
+
 const usersPath = path.join(process.cwd(), "data", "app-users.json");
 
 function readUsers() {

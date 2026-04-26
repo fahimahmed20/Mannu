@@ -4,6 +4,8 @@ import path from "path";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { logAction } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 const catPath = path.join(process.cwd(), "data", "categories.json");
 const speciesPath = path.join(process.cwd(), "data", "species-data.json");
 

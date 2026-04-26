@@ -5,6 +5,8 @@ import { randomBytes } from "crypto";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { logAction } from "@/lib/activity-log";
 
+export const dynamic = "force-dynamic";
+
 const mediaPath = path.join(process.cwd(), "data", "media.json");
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 

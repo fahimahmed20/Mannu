@@ -89,10 +89,6 @@ jobs:
 
             # ── Restart ──
             mkdir -p public/uploads tmp
-            # Passenger restart signal
             touch tmp/restart.txt
-            # Also kill any running Node process on the app port so Passenger respawns immediately
-            fuser -k 30000/tcp 2>/dev/null || pkill -f "server.js" 2>/dev/null || true
-            sleep 2
 
             echo "✅ Deployment complete"

@@ -73,11 +73,29 @@ jobs:
             npm install --omit=dev --prefer-offline --no-audit --no-fund 2>/dev/null || \
             npm install --omit=dev --no-audit --no-fund
 
-            # ── Restore admin data files ──
-            [ -f /tmp/manu-backup/species-data.json ] && cp /tmp/manu-backup/species-data.json data/
-            [ -f /tmp/manu-backup/categories.json ]   && cp /tmp/manu-backup/categories.json   data/
-            [ -f /tmp/manu-backup/admin-users.json ]  && cp /tmp/manu-backup/admin-users.json  data/
-            [ -f /tmp/manu-backup/app-config.json ]   && cp /tmp/manu-backup/app-config.json   data/
+            # ── Merge species: git version (correct images) + admin-added species ──
+            # The git version has authoritative image paths. We only merge back
+            # species that admin added via the panel and are NOT yet in git.
+            if [ -f /tmp/manu-backup/species-data.json ]; then
+              node -e "
+                const fs = require('fs');
+                const gitData = JSON.parse(fs.readFileSync('data/species-data.json', 'utf8'));
+                const backup = JSON.parse(fs.readFileSync('/tmp/manu-backup/species-data.json', 'utf8'));
+                const gitIds = new Set(gitData.map(s => s.id));
+                const adminOnly = backup.filter(s => !gitIds.has(s.id));
+                if (adminOnly.length > 0) {
+                  fs.writeFileSync('data/species-data.json', JSON.stringify([...gitData, ...adminOnly], null, 2));
+                  console.log('Merged ' + adminOnly.length + ' admin-added species');
+                } else {
+                  console.log('No admin-added species to merge');
+                }
+              "
+            fi
+
+            # ── Restore other admin config files unchanged ──
+            [ -f /tmp/manu-backup/categories.json ]  && cp /tmp/manu-backup/categories.json  data/
+            [ -f /tmp/manu-backup/admin-users.json ] && cp /tmp/manu-backup/admin-users.json data/
+            [ -f /tmp/manu-backup/app-config.json ]  && cp /tmp/manu-backup/app-config.json  data/
             rm -rf /tmp/manu-backup
 
             # ── Init runtime data files if missing ──

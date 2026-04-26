@@ -10,36 +10,14 @@ env:
 
 jobs:
   deploy:
-    name: Build & Deploy
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4.4.0
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install & build (on CI runner — plenty of RAM)
-        run: |
-          npm ci
-          npm run build
-
-      # ── Upload the pre-built .next/ from CI to server ──────────────────
-      - name: Upload .next build output to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
-          source: ".next/"
-          target: "~/manu-explorers/"
-
-      # ── Pull code + restore data + restart (no server-side build needed) ─
+      # ── Push code + build on server (63GB RAM, no SWC binary issue) ────
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -47,14 +25,15 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
+          command_timeout: 15m
           script: |
             set -e
 
             # ── Backup admin config files (NOT species-data — git is authoritative) ──
             mkdir -p /tmp/manu-backup
-            [ -f ~/manu-explorers/data/categories.json ]   && cp ~/manu-explorers/data/categories.json    /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/admin-users.json ]  && cp ~/manu-explorers/data/admin-users.json   /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/app-config.json ]   && cp ~/manu-explorers/data/app-config.json    /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/categories.json ]  && cp ~/manu-explorers/data/categories.json  /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/admin-users.json ] && cp ~/manu-explorers/data/admin-users.json /tmp/manu-backup/
+            [ -f ~/manu-explorers/data/app-config.json ]  && cp ~/manu-explorers/data/app-config.json  /tmp/manu-backup/
 
             # ── Pull latest code (or clone if first time) ──
             if [ -d ~/manu-explorers/.git ]; then
@@ -62,18 +41,19 @@ jobs:
               git fetch origin main
               git reset --hard origin/main
             else
-              # First deploy: clone without .next (already uploaded via scp above)
-              mv ~/manu-explorers ~/manu-explorers-old 2>/dev/null || true
               git clone https://github.com/fahimahmed20/Mannu.git ~/manu-explorers
-              # Restore .next build that was uploaded before the clone
-              [ -d ~/manu-explorers-old/.next ] && cp -r ~/manu-explorers-old/.next ~/manu-explorers/
-              rm -rf ~/manu-explorers-old
               cd ~/manu-explorers
             fi
 
-            # ── Install production dependencies only (much lighter than full ci) ──
-            npm install --omit=dev --prefer-offline --no-audit --no-fund 2>/dev/null || \
-            npm install --omit=dev --no-audit --no-fund
+            # ── Install all dependencies (need dev deps for build) ──
+            npm install --no-audit --no-fund
+
+            # ── Remove crashing SWC native binaries; Next.js falls back to pure JS ──
+            rm -f node_modules/@next/swc-linux-x64-gnu/next-swc.linux-x64-gnu.node
+            rm -f node_modules/@next/swc-linux-x64-musl/next-swc.linux-x64-musl.node
+
+            # ── Build on server (has plenty of RAM) ──
+            npm run build
 
             # ── Restore admin config files (species-data comes from git) ──
             [ -f /tmp/manu-backup/categories.json ]  && cp /tmp/manu-backup/categories.json  data/
@@ -87,7 +67,7 @@ jobs:
             [ -f data/app-users.json ]    || echo "[]" > data/app-users.json
             [ -f data/otp-store.json ]    || echo "{}" > data/otp-store.json
 
-            # ── Restart ──
+            # ── Restart via Passenger signal ──
             mkdir -p public/uploads tmp
             touch tmp/restart.txt
 

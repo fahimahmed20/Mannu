@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [devOtp, setDevOtp] = useState<string | null>(null);
 
   const seenCount = getSeenCount();
 
@@ -26,9 +25,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.sendOtp(email.trim().toLowerCase());
-      // Dev mode: server returns OTP in response for easy testing
-      if (res.otp_code) setDevOtp(res.otp_code);
+      await api.sendOtp(email.trim().toLowerCase());
       setStep("otp");
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : "Failed to send code. Try again.";
@@ -66,7 +63,6 @@ export default function LoginPage() {
 
   async function handleLogout() {
     await storeLogout();
-    setDevOtp(null);
     setStep("home");
   }
 
@@ -135,7 +131,7 @@ export default function LoginPage() {
     return (
       <div className="page-enter px-5 pt-10">
         <button
-          onClick={() => { setStep("email"); setOtp(""); setError(""); setDevOtp(null); }}
+          onClick={() => { setStep("email"); setOtp(""); setError(""); }}
           className="inline-flex items-center gap-1.5 text-emerald-700 font-medium text-sm mb-8"
         >
           <svg className="w-4 h-4 stroke-emerald-700 fill-none" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -147,15 +143,6 @@ export default function LoginPage() {
         <p className="text-stone-500 text-sm mt-2">
           We sent a 6-digit code to <strong>{email}</strong>
         </p>
-
-        {/* Dev helper — shows real OTP code from server */}
-        {devOtp && (
-          <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
-            <p className="text-xs text-amber-700 font-medium">
-              Dev mode — your code: <span className="font-mono font-bold text-amber-800">{devOtp}</span>
-            </p>
-          </div>
-        )}
 
         <div className="mt-6 space-y-4">
           <input

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    const smtp = JSON.parse(fs.readFileSync(smtpPath, "utf-8"));
+    const smtp = fs.existsSync(smtpPath) ? JSON.parse(fs.readFileSync(smtpPath, "utf-8")) : {};
 
     // Find or create user
     const users = readUsers();
@@ -123,14 +123,6 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-    }
-
-    // Dev mode — return code in response when SMTP is not set up
-    if (process.env.NODE_ENV !== "production") {
-      return NextResponse.json({
-        message: "Dev mode — SMTP not configured. Use the code shown below.",
-        otp_code: code,
-      });
     }
 
     return NextResponse.json(

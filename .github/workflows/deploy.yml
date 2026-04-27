@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      # ── Step 1: backup configs + git pull + clear old build ──
+      # ── Step 1: backup live data, copy latest source, clear old build ──
       - name: Prepare server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -41,21 +41,47 @@ jobs:
           command_timeout: 5m
           script: |
             set -e
+            APP=~/public_html/apptest
+            SRC=~/manu-explorers
 
-            mkdir -p /tmp/manu-backup
-            [ -f ~/manu-explorers/data/categories.json ]  && cp ~/manu-explorers/data/categories.json  /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/admin-users.json ] && cp ~/manu-explorers/data/admin-users.json /tmp/manu-backup/
-            [ -f ~/manu-explorers/data/app-config.json ]  && cp ~/manu-explorers/data/app-config.json  /tmp/manu-backup/
-
-            if [ -d ~/manu-explorers/.git ]; then
-              cd ~/manu-explorers
-              git fetch origin main
-              git reset --hard origin/main
+            # Pull latest code into staging dir
+            if [ -d $SRC/.git ]; then
+              cd $SRC && git fetch origin main && git reset --hard origin/main
             else
-              git clone https://github.com/fahimahmed20/Mannu.git ~/manu-explorers
+              git clone https://github.com/fahimahmed20/Mannu.git $SRC
             fi
 
-            rm -rf ~/manu-explorers/.next
+            # Backup live data + credentials from apptest
+            mkdir -p /tmp/app-backup
+            cp -r $APP/data       /tmp/app-backup/ 2>/dev/null || true
+            cp    $APP/.env.local /tmp/app-backup/ 2>/dev/null || true
+            cp -r $APP/public/uploads /tmp/app-backup/ 2>/dev/null || true
+
+            # Copy updated source files into apptest
+            cp -rf $SRC/app          $APP/
+            cp -rf $SRC/lib          $APP/
+            cp -rf $SRC/components   $APP/
+            cp     $SRC/server.js    $APP/
+            cp     $SRC/package.json $APP/
+            cp     $SRC/package-lock.json $APP/
+            cp     $SRC/next.config.ts    $APP/
+            cp     $SRC/tsconfig.json     $APP/
+            cp     $SRC/postcss.config.mjs $APP/
+            cp     $SRC/eslint.config.mjs  $APP/ 2>/dev/null || true
+            cp     $SRC/public/*.js   $APP/public/ 2>/dev/null || true
+            cp     $SRC/public/*.json $APP/public/ 2>/dev/null || true
+            cp     $SRC/public/*.png  $APP/public/ 2>/dev/null || true
+            cp     $SRC/public/*.ico  $APP/public/ 2>/dev/null || true
+
+            # Restore live data and credentials
+            cp -r /tmp/app-backup/data/*  $APP/data/   2>/dev/null || true
+            cp    /tmp/app-backup/.env.local $APP/      2>/dev/null || true
+            mkdir -p $APP/public/uploads
+            cp /tmp/app-backup/uploads/* $APP/public/uploads/ 2>/dev/null || true
+            rm -rf /tmp/app-backup
+
+            # Clear old build
+            rm -rf $APP/.next
 
       # ── Step 2: upload the pre-built .next from CI ──
       - name: Upload build to server
@@ -66,9 +92,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
           source: ".next"
-          target: "~/manu-explorers/"
+          target: "~/public_html/apptest/"
 
-      # ── Step 3: install prod deps, restore configs, restart ──
+      # ── Step 3: install prod deps, init data files, restart ──
       - name: Finalize & restart
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -79,19 +105,15 @@ jobs:
           command_timeout: 5m
           script: |
             set -e
-            cd ~/manu-explorers
+            cd ~/public_html/apptest
 
             npm install --omit=dev --no-audit --no-fund
-
-            [ -f /tmp/manu-backup/categories.json ]  && cp /tmp/manu-backup/categories.json  data/
-            [ -f /tmp/manu-backup/admin-users.json ] && cp /tmp/manu-backup/admin-users.json data/
-            [ -f /tmp/manu-backup/app-config.json ]  && cp /tmp/manu-backup/app-config.json  data/
-            rm -rf /tmp/manu-backup
 
             [ -f data/media.json ]        || echo "[]" > data/media.json
             [ -f data/activity-log.json ] || echo "[]" > data/activity-log.json
             [ -f data/app-users.json ]    || echo "[]" > data/app-users.json
             [ -f data/otp-store.json ]    || echo "{}" > data/otp-store.json
+            [ -f data/admin-users.json ]  || echo "[]" > data/admin-users.json
 
             mkdir -p public/uploads tmp
             touch tmp/restart.txt

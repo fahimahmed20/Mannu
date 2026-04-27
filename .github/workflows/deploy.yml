@@ -94,8 +94,8 @@ jobs:
           source: ".next"
           target: "~/public_html/apptest/"
 
-      # ── Step 3: install prod deps, init data files, restart ──
-      - name: Finalize & restart
+      # ── Step 3: install prod deps, init data files ──
+      - name: Finalize
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -116,20 +116,30 @@ jobs:
             [ -f data/admin-users.json ]  || echo "[]" > data/admin-users.json
 
             mkdir -p public/uploads tmp
+            echo "✅ Setup complete"
 
-            # Restart Node.js process
-            OLD_PID=$(pgrep -f "node server.js" | head -1)
-            if [ -n "$OLD_PID" ]; then
-              kill $OLD_PID 2>/dev/null || true
-              sleep 2
-            fi
+      # ── Step 4: restart app in a fully detached process ──
+      - name: Restart app
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          command_timeout: 1m
+          script: |
+            cat > /tmp/manu-restart.sh << 'RESTART_EOF'
+            #!/bin/bash
+            sleep 1
+            pkill -f "node server.js" 2>/dev/null || true
+            sleep 3
+            cd /home/blushaur/public_html/apptest
             export PATH=/usr/local/apps/nodejs20/bin:/usr/local/bin:/usr/bin:/bin
             export NODE_ENV=production
-            export ADMIN_USERNAME=superadmin
-            export ADMIN_JWT_SECRET=manu-explorers-super-secret-jwt-key-change-in-production
             export NEXT_PUBLIC_API_URL=https://apptest.blushaurabd.shop/api
-            nohup /usr/local/apps/nodejs20/bin/node server.js >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1 &
-            sleep 3
-            pgrep -f "node server.js" && echo "✅ Process running" || echo "⚠️ Process not found"
-
-            echo "✅ Deployment complete"
+            nohup /usr/local/apps/nodejs20/bin/node server.js >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1
+            RESTART_EOF
+            chmod +x /tmp/manu-restart.sh
+            nohup /tmp/manu-restart.sh </dev/null >/dev/null 2>&1 &
+            disown
+            echo "✅ Restart scheduled"

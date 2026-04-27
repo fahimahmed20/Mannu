@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
-import { SPECIES, CATEGORIES } from "@/data/species";
+import { CATEGORIES } from "@/data/species";
 import CategoryCard from "@/components/CategoryCard";
 import Link from "next/link";
 import { getPalette, type CategoryDef } from "@/lib/category-palettes";
 
 export default function HomePage() {
-  const { getSeenCount, checklistLoaded } = useStore();
+  const { getSeenCount, checklistLoaded, species } = useStore();
   const [categories, setCategories] = useState<CategoryDef[]>(CATEGORIES);
-  const totalSpecies = SPECIES.length;
+  const totalSpecies = species.length;
   const seenCount = getSeenCount();
   const pct = totalSpecies > 0 ? Math.round((seenCount / totalSpecies) * 100) : 0;
 
@@ -89,7 +89,7 @@ export default function HomePage() {
                 label={cat.label}
                 emoji={cat.emoji}
                 gradient={`linear-gradient(135deg, ${p.from}, ${p.to})`}
-                total={SPECIES.filter((s) => s.category === cat.id).length}
+                total={species.filter((s) => s.category === cat.id).length}
               />
             );
           })}

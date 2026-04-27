@@ -116,6 +116,20 @@ jobs:
             [ -f data/admin-users.json ]  || echo "[]" > data/admin-users.json
 
             mkdir -p public/uploads tmp
-            touch tmp/restart.txt
+
+            # Restart Node.js process
+            OLD_PID=$(pgrep -f "node server.js" | head -1)
+            if [ -n "$OLD_PID" ]; then
+              kill $OLD_PID 2>/dev/null || true
+              sleep 2
+            fi
+            export PATH=/usr/local/apps/nodejs20/bin:/usr/local/bin:/usr/bin:/bin
+            export NODE_ENV=production
+            export ADMIN_USERNAME=superadmin
+            export ADMIN_JWT_SECRET=manu-explorers-super-secret-jwt-key-change-in-production
+            export NEXT_PUBLIC_API_URL=https://apptest.blushaurabd.shop/api
+            nohup /usr/local/apps/nodejs20/bin/node server.js >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1 &
+            sleep 3
+            pgrep -f "node server.js" && echo "✅ Process running" || echo "⚠️ Process not found"
 
             echo "✅ Deployment complete"

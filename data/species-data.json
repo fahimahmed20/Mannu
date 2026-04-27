@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "df",
+    "name": "df",
+    "scientific_name": "sfdg",
+    "category": "amphibian",
+    "image": "",
+    "description": "",
+    "habitat": "",
+    "difficulty": "common"
+  },
+  {
+    "id": "sdfhdh",
+    "name": "sdfhdh",
+    "scientific_name": "fdgfsg",
+    "category": "bird",
+    "image": "/uploads/e2b78fb471885c69.png",
+    "description": "",
+    "habitat": "",
+    "difficulty": "common"
+  }
+]

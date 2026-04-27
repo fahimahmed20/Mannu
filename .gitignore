@@ -38,6 +38,8 @@ data/media.json
 data/activity-log.json
 data/app-users.json
 data/smtp-config.json
+data/otp-store.json
+data/species-data-upload.json
 
 # Keep uploaded files on server
 public/uploads/*

@@ -280,7 +280,7 @@ function ImagePicker({
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 flex-shrink-0">
               <h3 className="font-bold text-slate-800">Select Image</h3>
-              <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -293,6 +293,7 @@ function ImagePicker({
                 {(["library", "upload"] as const).map((t) => (
                   <button
                     key={t}
+                    type="button"
                     onClick={() => setTab(t === "upload" ? "url" : "library")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors capitalize ${
                       (t === "library" && tab === "library") || (t === "upload" && tab === "url")

@@ -14,7 +14,9 @@ async function getActor(request: NextRequest) {
   try { return await verifyAdminToken(token); } catch { return null; }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const actor = await getActor(request);
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return NextResponse.json(JSON.parse(fs.readFileSync(configPath, "utf-8")));
 }
 

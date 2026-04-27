@@ -178,18 +178,33 @@ function Sidebar({ user, onClose }: { user: AdminUser | null; onClose?: () => vo
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<AdminUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    if (pathname !== "/admin/login") {
-      fetch("/api/admin/auth/me")
-        .then((r) => (r.ok ? r.json() : null))
-        .then(setUser);
+    if (pathname === "/admin/login") {
+      setAuthChecked(true);
+      return;
     }
+    fetch("/api/admin/auth/me")
+      .then((r) => {
+        if (!r.ok) {
+          router.push("/admin/login");
+          return null;
+        }
+        return r.json();
+      })
+      .then((data) => {
+        if (data) setUser(data);
+        setAuthChecked(true);
+      });
   }, [pathname]);
 
   if (pathname === "/admin/login") return <>{children}</>;
+
+  if (!authChecked) return null;
 
   return (
     <AdminContext.Provider value={user}>

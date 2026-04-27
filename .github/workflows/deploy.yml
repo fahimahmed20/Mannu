@@ -83,7 +83,7 @@ jobs:
             # Clear old build
             rm -rf $APP/.next
 
-      # ── Step 2: upload the pre-built .next from CI ──
+      # ── Step 2: upload the pre-built .next + generated SW files from CI ──
       - name: Upload build to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -91,7 +91,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
-          source: ".next"
+          source: ".next,public/sw.js,public/workbox-*.js,public/swe-worker-*.js"
           target: "~/public_html/apptest/"
 
       # ── Step 3: install prod deps, init data files ──

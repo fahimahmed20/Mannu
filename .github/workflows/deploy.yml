@@ -8,6 +8,10 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Build & Deploy
@@ -128,18 +132,13 @@ jobs:
           port: 22
           command_timeout: 1m
           script: |
-            cat > /tmp/manu-restart.sh << 'RESTART_EOF'
-            #!/bin/bash
-            sleep 1
             pkill -f "node server.js" 2>/dev/null || true
             sleep 3
-            cd /home/blushaur/public_html/apptest
             export PATH=/usr/local/apps/nodejs20/bin:/usr/local/bin:/usr/bin:/bin
             export NODE_ENV=production
             export NEXT_PUBLIC_API_URL=https://apptest.blushaurabd.shop/api
-            nohup /usr/local/apps/nodejs20/bin/node server.js >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1
-            RESTART_EOF
-            chmod +x /tmp/manu-restart.sh
-            nohup /tmp/manu-restart.sh </dev/null >/dev/null 2>&1 &
+            nohup /usr/local/apps/nodejs20/bin/node /home/blushaur/public_html/apptest/server.js \
+              >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1 </dev/null &
             disown
-            echo "✅ Restart scheduled"
+            sleep 2
+            echo "✅ Restarted PID=$(pgrep -f 'node server.js' | head -1)"

@@ -54,8 +54,9 @@ function ChecklistContent() {
   const { checklist, checklistLoaded, getSeenCountByCategory, getTotalByCategory, species: allSpecies } =
     useStore();
 
+  const validIds = new Set(allSpecies.map((s) => s.id));
   const seenIds = Object.entries(checklist)
-    .filter(([, v]) => v)
+    .filter(([id, v]) => v && validIds.has(id))
     .map(([k]) => k);
 
   const totalSeen = seenIds.length;

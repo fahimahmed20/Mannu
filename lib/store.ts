@@ -149,8 +149,9 @@ export const useStore = create<AppState>((set, get) => ({
 
   // ── Computed ─────────────────────────────────────────────────────────
   getSeenCount: () => {
-    const { checklist } = get();
-    return Object.values(checklist).filter(Boolean).length;
+    const { checklist, species } = get();
+    const validIds = new Set(species.map((s) => s.id));
+    return Object.entries(checklist).filter(([id, seen]) => seen && validIds.has(id)).length;
   },
 
   getSeenCountByCategory: (category: Category) => {

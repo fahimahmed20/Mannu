@@ -8,11 +8,12 @@ import Link from "next/link";
 import { getPalette, type CategoryDef } from "@/lib/category-palettes";
 
 export default function HomePage() {
-  const { getSeenCount, checklistLoaded, species } = useStore();
+  const { getSeenCount, checklistLoaded, speciesLoaded, species } = useStore();
   const [categories, setCategories] = useState<CategoryDef[]>(CATEGORIES);
   const totalSpecies = species.length;
   const seenCount = getSeenCount();
-  const pct = totalSpecies > 0 ? Math.round((seenCount / totalSpecies) * 100) : 0;
+  const ready = checklistLoaded && speciesLoaded;
+  const pct = ready && totalSpecies > 0 ? Math.round((seenCount / totalSpecies) * 100) : 0;
 
   useEffect(() => {
     fetch("/api/categories").then((r) => r.json()).then(setCategories).catch(() => {});
@@ -36,13 +37,15 @@ export default function HomePage() {
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Trip Progress</span>
               <span className="text-sm font-bold">
-                {checklistLoaded ? `${seenCount} / ${totalSpecies}` : "—"}
+                {ready ? `${seenCount} / ${totalSpecies}` : "—"}
               </span>
             </div>
             <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-400 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+              <div className="h-full bg-emerald-400 rounded-full transition-all duration-700" style={{ width: ready ? `${pct}%` : "0%" }} />
             </div>
-            <p className="text-right text-xs text-emerald-300 mt-1">{pct}% of all species spotted</p>
+            <p className="text-right text-xs text-emerald-300 mt-1">
+              {ready ? `${pct}% of all species spotted` : "Loading…"}
+            </p>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import OfflineImage from "@/components/OfflineImage";
 import { notFound } from "next/navigation";
-import { getSpeciesById, CATEGORIES } from "@/data/species";
+import { CATEGORIES } from "@/data/species";
 import { useStore } from "@/lib/store";
 
 const DIFFICULTY_LABEL: Record<string, string> = {
@@ -25,10 +25,22 @@ export default function SpeciesDetailContent({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const species = getSpeciesById(id);
-  if (!species) notFound();
+  const { checklist, toggleSeen, species: allSpecies, speciesLoaded } = useStore();
 
-  const { checklist, toggleSeen } = useStore();
+  const species = allSpecies.find((s) => s.id === id);
+
+  if (!speciesLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center text-stone-400">
+          <div className="w-10 h-10 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm">Loading species...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!species) notFound();
   const seen = checklist[species.id] ?? false;
 
   const category = CATEGORIES.find((c) => c.id === species.category);

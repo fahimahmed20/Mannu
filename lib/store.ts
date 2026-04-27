@@ -5,6 +5,7 @@ import { getAllChecklist, updateSeen, getUser, clearUser, type ChecklistEntry } 
 export interface AppState {
   // Species (API-loaded, bundled data as initial fallback)
   species: Species[];
+  speciesLoaded: boolean;
   loadSpecies: () => Promise<void>;
 
   // Checklist
@@ -36,16 +37,19 @@ export interface AppState {
 export const useStore = create<AppState>((set, get) => ({
   // ── Species ──────────────────────────────────────────────────────────
   species: BUNDLED_SPECIES,
+  speciesLoaded: false,
 
   loadSpecies: async () => {
     try {
       const res = await fetch("/api/species");
       if (res.ok) {
         const { species } = await res.json();
-        set({ species });
+        set({ species, speciesLoaded: true });
+      } else {
+        set({ speciesLoaded: true });
       }
     } catch {
-      // offline — keep bundled fallback
+      set({ speciesLoaded: true });
     }
   },
 

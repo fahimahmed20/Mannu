@@ -1,10 +1,5 @@
 import { Suspense } from "react";
-import { SPECIES } from "@/data/species";
 import SpeciesDetailContent from "./SpeciesDetailContent";
-
-export async function generateStaticParams() {
-  return SPECIES.map((s) => ({ id: s.id }));
-}
 
 export default function SpeciesDetailPage({
   params,

@@ -125,10 +125,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(
-      { error: "Email service is not configured. Please contact the administrator." },
-      { status: 500 }
-    );
+    // SMTP not configured — return code directly so the app can auto-fill it
+    return NextResponse.json({
+      message: "Verification code generated. Enter it in the app.",
+      otp_code: code,
+    });
   } catch (err) {
     console.error("send-otp error:", err);
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });

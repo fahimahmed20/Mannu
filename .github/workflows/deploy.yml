@@ -84,8 +84,11 @@ jobs:
             cp /tmp/app-backup/uploads/* $APP/public/uploads/ 2>/dev/null || true
             rm -rf /tmp/app-backup
 
-            # Clear old build
-            rm -rf $APP/.next
+            # NOTE: do NOT delete .next here — the server is still running and
+            # would return 500 for any static-chunk request with no .next dir.
+            # The SCP upload (next step) overwrites files in-place; old
+            # content-hashed chunks keep their filenames so they stay valid
+            # for browsers that still have the previous SW cache.
 
       # ── Step 2: upload the pre-built .next + generated SW files from CI ──
       - name: Upload build to server
@@ -132,6 +135,11 @@ jobs:
           port: 22
           command_timeout: 1m
           script: |
+            # Remove chunk files older than 2 days AFTER new .next is in place.
+            # Keeps disk clean while still serving old chunks to any browsers
+            # that have a previous build's SW cache active (SW TTL is ~24 h).
+            find ~/public_html/apptest/.next/static/chunks -name "*.js" -mtime +2 -delete 2>/dev/null || true
+
             printf '#!/bin/bash\npkill -f "node server.js" 2>/dev/null || true\nsleep 3\nexport PATH=/usr/local/apps/nodejs20/bin:/usr/local/bin:/usr/bin:/bin\nexport NODE_ENV=production\nexport NEXT_PUBLIC_API_URL=https://apptest.blushaurabd.shop/api\nexec /usr/local/apps/nodejs20/bin/node /home/blushaur/public_html/apptest/server.js >> /home/blushaur/apptest.blushaurabd.shop_6ZGFLhl4.log 2>&1\n' > /tmp/manu-restart.sh
             chmod +x /tmp/manu-restart.sh
             nohup /tmp/manu-restart.sh </dev/null >/dev/null 2>&1 &
